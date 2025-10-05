@@ -1,6 +1,8 @@
 """
 Inner Product Implementation - Pure Python (No Libraries)
 """
+import matplotlib
+matplotlib.use('TkAgg')  # Use TkAgg backend for interactive plots
 import matplotlib.pyplot as plt
 
 def inner_product(x, y):
