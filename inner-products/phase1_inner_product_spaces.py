@@ -1,6 +1,7 @@
 """
 Inner Product Implementation - Pure Python (No Libraries)
 """
+import matplotlib.pyplot as plt
 
 def inner_product(x, y):
     """Standard Euclidean inner product"""
@@ -283,6 +284,250 @@ def test_projection_matrix():
     print(f"Project {v}: {[f'{x:.1f}' for x in proj_v]}")
     print()
 
+def plot_vectors_2d(vectors, labels=None, colors=None, title="Vectors"):
+    """Plot 2D vectors"""
+    plt.figure(figsize=(8, 8))
+    
+    if colors is None:
+        colors = ['red', 'blue', 'green', 'orange', 'purple', 'brown']
+    
+    if labels is None:
+        labels = [f'v{i+1}' for i in range(len(vectors))]
+    
+    # Plot vectors as arrows from origin
+    for i, v in enumerate(vectors):
+        if len(v) >= 2:
+            plt.arrow(0, 0, v[0], v[1], 
+                     head_width=0.1, head_length=0.1, 
+                     fc=colors[i % len(colors)], 
+                     ec=colors[i % len(colors)],
+                     linewidth=2, label=labels[i])
+    
+    # Set equal aspect and grid
+    plt.axis('equal')
+    plt.grid(True, alpha=0.3)
+    plt.axhline(y=0, color='k', linewidth=0.5)
+    plt.axvline(x=0, color='k', linewidth=0.5)
+    
+    # Set reasonable limits
+    all_coords = []
+    for v in vectors:
+        if len(v) >= 2:
+            all_coords.extend([v[0], v[1]])
+    
+    if all_coords:
+        margin = max(abs(min(all_coords)), abs(max(all_coords))) * 0.1
+        plt.xlim(min(all_coords) - margin, max(all_coords) + margin)
+        plt.ylim(min(all_coords) - margin, max(all_coords) + margin)
+    
+    plt.legend()
+    plt.title(title)
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.show()
+
+def plot_projection_2d(original, target, projection, title="Vector Projection"):
+    """Plot vector projection in 2D"""
+    plt.figure(figsize=(8, 8))
+    
+    # Original vector
+    plt.arrow(0, 0, original[0], original[1], 
+             head_width=0.1, head_length=0.1, 
+             fc='blue', ec='blue', linewidth=2, label='Original vector v')
+    
+    # Target vector (what we project onto)
+    plt.arrow(0, 0, target[0], target[1], 
+             head_width=0.1, head_length=0.1, 
+             fc='red', ec='red', linewidth=2, label='Target vector u')
+    
+    # Projection
+    plt.arrow(0, 0, projection[0], projection[1], 
+             head_width=0.08, head_length=0.08, 
+             fc='green', ec='green', linewidth=2, label='Projection proj_u(v)')
+    
+    # Residual (perpendicular component)
+    residual = [original[i] - projection[i] for i in range(2)]
+    plt.arrow(projection[0], projection[1], residual[0], residual[1], 
+             head_width=0.05, head_length=0.05, 
+             fc='orange', ec='orange', linewidth=1.5, 
+             linestyle='--', label='Residual (⊥ component)')
+    
+    # Dashed line showing projection construction
+    plt.plot([original[0], projection[0]], [original[1], projection[1]], 
+             'k--', alpha=0.5, linewidth=1)
+    
+    plt.axis('equal')
+    plt.grid(True, alpha=0.3)
+    plt.axhline(y=0, color='k', linewidth=0.5)
+    plt.axvline(x=0, color='k', linewidth=0.5)
+    
+    # Set limits
+    all_coords = [original[0], original[1], target[0], target[1], 
+                  projection[0], projection[1]]
+    margin = max(abs(min(all_coords)), abs(max(all_coords))) * 0.2
+    plt.xlim(min(all_coords) - margin, max(all_coords) + margin)
+    plt.ylim(min(all_coords) - margin, max(all_coords) + margin)
+    
+    plt.legend()
+    plt.title(title)
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.show()
+
+def plot_gram_schmidt_2d(original_vectors, orthogonal_vectors, orthonormal_vectors):
+    """Plot Gram-Schmidt process for 2D vectors"""
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+    
+    colors = ['red', 'blue', 'green', 'orange']
+    
+    # Plot 1: Original vectors
+    ax = axes[0]
+    for i, v in enumerate(original_vectors):
+        if len(v) >= 2:
+            ax.arrow(0, 0, v[0], v[1], 
+                    head_width=0.1, head_length=0.1, 
+                    fc=colors[i], ec=colors[i], linewidth=2, 
+                    label=f'v{i+1} = [{v[0]}, {v[1]}]')
+    
+    ax.set_title('Original Vectors')
+    ax.axis('equal')
+    ax.grid(True, alpha=0.3)
+    ax.axhline(y=0, color='k', linewidth=0.5)
+    ax.axvline(x=0, color='k', linewidth=0.5)
+    ax.legend()
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    
+    # Plot 2: Orthogonal vectors
+    ax = axes[1]
+    for i, v in enumerate(orthogonal_vectors):
+        if len(v) >= 2:
+            ax.arrow(0, 0, v[0], v[1], 
+                    head_width=0.1, head_length=0.1, 
+                    fc=colors[i], ec=colors[i], linewidth=2, 
+                    label=f'u{i+1} = [{v[0]:.2f}, {v[1]:.2f}]')
+    
+    ax.set_title('Orthogonal Vectors')
+    ax.axis('equal')
+    ax.grid(True, alpha=0.3)
+    ax.axhline(y=0, color='k', linewidth=0.5)
+    ax.axvline(x=0, color='k', linewidth=0.5)
+    ax.legend()
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    
+    # Plot 3: Orthonormal vectors
+    ax = axes[2]
+    for i, v in enumerate(orthonormal_vectors):
+        if len(v) >= 2:
+            ax.arrow(0, 0, v[0], v[1], 
+                    head_width=0.1, head_length=0.1, 
+                    fc=colors[i], ec=colors[i], linewidth=2, 
+                    label=f'q{i+1} = [{v[0]:.2f}, {v[1]:.2f}]')
+    
+    # Draw unit circle to show normalization
+    theta = [i * 0.01 for i in range(628)]  # 0 to 2π
+    unit_x = [1 * (theta_val ** 2 - (theta_val ** 4)/24 + (theta_val ** 6)/720) if abs(theta_val) < 1.57 
+              else 1 * (-1 if theta_val > 3.14 else 1) * ((3.14159 - theta_val) ** 2 - ((3.14159 - theta_val) ** 4)/24) ** 0.5 
+              for theta_val in theta]
+    unit_y = [1 * (theta_val - (theta_val ** 3)/6 + (theta_val ** 5)/120) if abs(theta_val) < 1.57 
+              else 1 * (1 if theta_val < 3.14 else -1) * (1 - ((3.14159 - abs(theta_val - 3.14159)) ** 2)/2) ** 0.5 
+              for theta_val in theta]
+    
+    # Simple unit circle approximation
+    circle_points = 64
+    unit_circle_x = []
+    unit_circle_y = []
+    for i in range(circle_points + 1):
+        angle = 2 * 3.14159 * i / circle_points
+        # Use polynomial approximation for cos and sin
+        cos_val = 1 - angle*angle/2 + angle**4/24 - angle**6/720
+        sin_val = angle - angle**3/6 + angle**5/120 - angle**7/5040
+        if angle > 3.14159/2 and angle <= 3.14159:
+            cos_val = -(1 - (3.14159 - angle)**2/2 + (3.14159 - angle)**4/24)
+        elif angle > 3.14159 and angle <= 3*3.14159/2:
+            cos_val = -(1 - (angle - 3.14159)**2/2 + (angle - 3.14159)**4/24)
+            sin_val = -((angle - 3.14159) - (angle - 3.14159)**3/6 + (angle - 3.14159)**5/120)
+        elif angle > 3*3.14159/2:
+            cos_val = 1 - (2*3.14159 - angle)**2/2 + (2*3.14159 - angle)**4/24
+            sin_val = -((2*3.14159 - angle) - (2*3.14159 - angle)**3/6)
+        
+        unit_circle_x.append(cos_val)
+        unit_circle_y.append(sin_val)
+    
+    ax.plot(unit_circle_x, unit_circle_y, 'k--', alpha=0.3, linewidth=1, label='Unit circle')
+    
+    ax.set_title('Orthonormal Vectors')
+    ax.axis('equal')
+    ax.grid(True, alpha=0.3)
+    ax.axhline(y=0, color='k', linewidth=0.5)
+    ax.axvline(x=0, color='k', linewidth=0.5)
+    ax.legend()
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    
+    plt.tight_layout()
+    plt.show()
+
+def test_with_plots():
+    """Run tests with visualizations"""
+    print("=== VISUAL DEMONSTRATIONS ===")
+    
+    # Test 1: Basic projection
+    print("\n1. Vector Projection:")
+    v = [3, 2]
+    u = [2, 0]
+    proj = project_onto(v, u)
+    
+    print(f"Project {v} onto {u}")
+    print(f"Projection: {proj}")
+    print(f"Residual: {[v[i] - proj[i] for i in range(len(v))]}")
+    
+    plot_projection_2d(v, u, proj, "Vector Projection Example")
+    
+    # Test 2: Gram-Schmidt in 2D
+    print("\n2. Gram-Schmidt Process:")
+    original = [
+        [2, 1],
+        [1, 2]
+    ]
+    
+    orthogonal = gram_schmidt(original)
+    orthonormal = gram_schmidt_orthonormal(original)
+    
+    print("Original vectors:", original)
+    print("Orthogonal:", [[round(x, 3) for x in v] for v in orthogonal])
+    print("Orthonormal:", [[round(x, 3) for x in v] for v in orthonormal])
+    
+    plot_gram_schmidt_2d(original, orthogonal, orthonormal)
+    
+    # Test 3: Another projection example
+    print("\n3. Another Projection:")
+    v2 = [4, 3]
+    u2 = [1, 1]
+    proj2 = project_onto(v2, u2)
+    
+    print(f"Project {v2} onto {u2}")
+    print(f"Projection: {[round(x, 3) for x in proj2]}")
+    
+    plot_projection_2d(v2, u2, proj2, "Projection onto Diagonal Line")
+    
+    # Test 4: Three vectors Gram-Schmidt (show first 2 in 2D)
+    print("\n4. Gram-Schmidt with 3 vectors (showing first 2):")
+    vectors_3d = [
+        [1, 0],
+        [1, 1]
+    ]
+    
+    orth_3d = gram_schmidt(vectors_3d)
+    orthonorm_3d = gram_schmidt_orthonormal(vectors_3d)
+    
+    print("Original:", vectors_3d)
+    print("Orthogonal:", [[round(x, 3) for x in v] for v in orth_3d])
+    print("Orthonormal:", [[round(x, 3) for x in v] for v in orthonorm_3d])
+    
+    plot_gram_schmidt_2d(vectors_3d, orth_3d, orthonorm_3d)
+
 def run_all_tests():
     """Run all test cases"""
     test_basic_operations()
@@ -291,5 +536,36 @@ def run_all_tests():
     test_gram_schmidt()
     test_projection_matrix()
 
+def main():
+    """Main function with user choice"""
+    print("Choose demonstration:")
+    print("1. Run all tests (no plots)")
+    print("2. Run visual demonstrations (with plots)")
+    print("3. Both")
+    
+    try:
+        choice = input("Enter choice (1-3): ").strip()
+        
+        if choice == '1':
+            run_all_tests()
+        elif choice == '2':
+            test_with_plots()
+        elif choice == '3':
+            run_all_tests()
+            print("\n" + "="*50)
+            print("Now showing visual demonstrations...")
+            print("="*50)
+            test_with_plots()
+        else:
+            print("Invalid choice, running all tests...")
+            run_all_tests()
+            
+    except KeyboardInterrupt:
+        print("\nExiting...")
+    except Exception as e:
+        print(f"Error: {e}")
+        print("Running default tests...")
+        run_all_tests()
+
 if __name__ == "__main__":
-    run_all_tests()
+    main()
